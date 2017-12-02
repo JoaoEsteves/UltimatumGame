@@ -86,18 +86,32 @@ def ultimatumGame(G, maxIterations = 1000, epsilon = 0.01):
 		resetReward(G)
 	return meanMetrics(G)
 
-def pVariation(graph, epsilon, maxIterations):
+#TODO
+def distVariation(graph, maxIterations = 10):
+	distDict = {}
+	for _ in range(0, maxIterations):
+		ultimatumGame(graph)
+		for node in graph.nodes:
+			if graph.node[node]['p'] not in distDict:
+				distDict[graph.node[node]['p']] = 1
+			else:
+				distDict[graph.node[node]['p']] += 1
+	for p in distDict:
+		distDict[p] = distDict[p] / maxIterations 
+	return distDict
+
+def pVariation(graph, epsilon, maxIterations = 10):
 	psum = 0
 	for _ in range(0, maxIterations):
 		psum += ultimatumGame(graph, epsilon = epsilon)
 	mean = psum / maxIterations
 	return mean
 
-def epsilonVariation(graph, maxIterations = 10):
+def epsilonVariation(graph):
 	epsilonList = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09]
 	pList = []
 	for epsilon in epsilonList:
-		pMean = pVariation(graph, epsilon, maxIterations)
+		pMean = pVariation(graph, epsilon)
 		pList.append(pMean)
 	return pList
 
@@ -109,7 +123,7 @@ def getResults(graphs):
 		graphsDict[graphsName[i]] = epsilonVariation(graphs[i])
 	return graphsDict
 
-def getGraphs(graphsDict):
+def getEpsilonGraph(graphsDict):
 	epsilonList = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09]
 	plt.plot(epsilonList, graphsDict['FCGraph'], label = 'Fully Connected Graph')
 	plt.plot(epsilonList, graphsDict['RingGraph'], label = 'Ring Graph')
@@ -120,27 +134,26 @@ def getGraphs(graphsDict):
 	plt.title('Epsilon Variation')
 	plt.show()
 
-'''
-def epsilonVariation(graphs):
-	epsilonList = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09]
-	graphsName = ['FCGraph', 'RingGraph', 'SocialGraph']
-	graphsDict = {}
-	for graphName in graphsName:
-		graphsDict[graphName] = []
-	for i in range(0, len(graphsName)):
-		for epsilon in epsilonList:
-			metrics = ultimatumGame(graphs[i], epsilon = epsilon)
-			graphsDict[graphsName[i]] += [metrics, ]
+def getHistogramGraph(graphsDict):
+	fcGraph = graphsDict['FCGraph'][0]
+	ringGraph = graphsDict['RingGraph'][0]
+	socialGraph = graphsDict['SocialGraph'][0]
 
-	plt.plot(epsilonList, graphsDict['FCGraph'], label = 'Fully Connected Graph')
-	plt.plot(epsilonList, graphsDict['RingGraph'], label = 'Ring Graph')
-	plt.plot(epsilonList, graphsDict['SocialGraph'], label = 'Social Graph')
-	plt.xlabel('Epsilon Value')
+	x = np.arange(3)
+	pMean = [fcGraph, ringGraph, socialGraph]
+
+	plt.bar(x, pMean)
+	plt.xticks(x, ('FC Graph', 'Ring Graph', 'Social Graph'))
 	plt.ylabel('p Value')
-	plt.legend()
-	plt.title('Epsilon Variation')
+	plt.title('p Mean')
 	plt.show()
-	return graphsDict'''
+
+#TODO
+def getDistributionGraph(graphs):
+	fpDict = distVariation(graphs[0])
+	ringDict = distVariation(graphs[1])
+	socialDict = distVariation(graphs[2])
+
 
 def main():
 	#Create networks
@@ -149,10 +162,15 @@ def main():
 	G3 = createFileGraph('edges_social.txt')
 	graphs = [G1, G2, G3]
 
-	#Calculate metrics and draw graphics
+	#Calculate metrics and draw graphs
 	graphsDict = getResults(graphs)
 	print(graphsDict)
-	getGraphs(graphsDict)
+	getEpsilonGraph(graphsDict)
+	getHistogramGraph(graphsDict)
+
+	#Draw distribution graph
+	#print(distVariation(G2))
+	#getDistributionGraph(graphs)
 
 if __name__ == '__main__':
 	main()
