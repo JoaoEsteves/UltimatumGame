@@ -4,7 +4,7 @@ This project simulates the ultimatum game and calculates strategy measures for d
 
 ### Prerequisites
 
-*Python3* must be intalled allong with these libraries:
+*Python3* must be installed allong with these libraries:
 
 * numpy
 * matplotlib
