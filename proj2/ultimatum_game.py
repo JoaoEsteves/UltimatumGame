@@ -37,7 +37,7 @@ def updateMetrics(G, updatedDict):
 		G.node[node]['p'] = updatedDict[node][0]
 		G.node[node]['q'] = updatedDict[node][1]
 
-def ultimatumGame(G, maxIterations = 1, epsilon = 0.01):
+def ultimatumGame(G, maxIterations = 1000, epsilon = 0.01):
 	updateGraph(G)
 	evolve = []
 	evolve.append(meanMetrics(G))
@@ -130,7 +130,7 @@ def getTimeGraph(graph, maxIterations = 50):
 	plt.legend()
 	plt.title('Strategy Variation over Time')
 	plt.show()
-	
+
 
 def main():
 	#Create networks
